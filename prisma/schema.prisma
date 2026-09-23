@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  password_hash String
+  role          String   // "ADMIN" or "ASSISTANT"
+  phone         String?
+  status        String   @default("ACTIVE") // "ACTIVE" or "INACTIVE"
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  students      Student[] @relation("AssistantStudents")
+  classes       Class[]   @relation("AssistantClasses")
+}
+
+model Parent {
+  id              String   @id @default(uuid())
+  father_name     String?
+  mother_name     String?
+  guardian_name   String?
+  phone           String
+  alternate_phone String?
+  email           String?
+  address         String?
+  city            String?
+  state           String?
+  pin_code        String?
+
+  students        Student[]
+}
+
+model Class {
+  id            String   @id @default(uuid())
+  class_name    String
+  section       String
+  academic_year String
+  assistant_id  String?
+  status        String   @default("ACTIVE")
+
+  assistant     User?    @relation("AssistantClasses", fields: [assistant_id], references: [id])
+  students      Student[]
+}
+
+model Bus {
+  id             String   @id @default(uuid())
+  bus_number     String
+  vehicle_number String
+  driver_name    String
+  driver_phone   String
+  route          String
+  pickup_points  String? // Stored as comma separated or JSON string
+  capacity       Int
+  status         String   @default("ACTIVE")
+
+  students       Student[]
+  bus_fees       BusFee[]
+}
+
+model Student {
+  id             String   @id @default(uuid())
+  student_id     String   @unique
+  first_name     String
+  last_name      String
+  photo          String?
+  gender         String
+  date_of_birth  DateTime
+  blood_group    String?
+  admission_date DateTime
+  class_id       String
+  section        String
+  roll_number    String?
+  academic_year  String
+  assistant_id   String?
+  parent_id      String
+  uses_bus       Boolean  @default(false)
+  bus_id         String?
+  pickup_point   String?
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  class          Class    @relation(fields: [class_id], references: [id])
+  assistant      User?    @relation("AssistantStudents", fields: [assistant_id], references: [id])
+  parent         Parent   @relation(fields: [parent_id], references: [id])
+  bus            Bus?     @relation(fields: [bus_id], references: [id])
+  fees           Fee[]
+  bus_fees       BusFee[]
+  fee_payments   FeePayment[]
+  bus_payments   BusPayment[]
+}
+
+model Fee {
+  id             String   @id @default(uuid())
+  student_id     String
+  total_amount   Float
+  paid_amount    Float    @default(0)
+  balance_amount Float
+  status         String   // "PENDING", "BALANCE", "COMPLETED"
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  student        Student  @relation(fields: [student_id], references: [id])
+  payments       FeePayment[]
+}
+
+model FeePayment {
+  id               String   @id @default(uuid())
+  student_id       String
+  fee_id           String
+  amount           Float
+  payment_date     DateTime @default(now())
+  payment_method   String
+  transaction_id   String?
+  receipt_number   String   @unique
+  received_by      String
+  notes            String?
+  created_at       DateTime @default(now())
+
+  student          Student  @relation(fields: [student_id], references: [id])
+  fee              Fee      @relation(fields: [fee_id], references: [id])
+}
+
+model BusFee {
+  id             String   @id @default(uuid())
+  student_id     String
+  bus_id         String
+  total_amount   Float
+  paid_amount    Float    @default(0)
+  balance_amount Float
+  status         String   // "PENDING", "BALANCE", "COMPLETED"
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  student        Student  @relation(fields: [student_id], references: [id])
+  bus            Bus      @relation(fields: [bus_id], references: [id])
+  payments       BusPayment[]
+}
+
+model BusPayment {
+  id               String   @id @default(uuid())
+  student_id       String
+  bus_fee_id       String
+  amount           Float
+  payment_date     DateTime @default(now())
+  payment_method   String
+  transaction_id   String?
+  receipt_number   String   @unique
+  received_by      String
+  notes            String?
+  created_at       DateTime @default(now())
+
+  student          Student  @relation(fields: [student_id], references: [id])
+  bus_fee          BusFee   @relation(fields: [bus_fee_id], references: [id])
+}
