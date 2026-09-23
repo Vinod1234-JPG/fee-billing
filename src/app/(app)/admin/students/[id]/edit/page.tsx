@@ -139,7 +139,7 @@ export default async function EditStudentPage({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="roll_number">Roll Number</Label>
-                  <Input id="roll_number" name="roll_number" defaultValue={student.roll_number} required />
+                  <Input id="roll_number" name="roll_number" defaultValue={student.roll_number || ""} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="academic_year">Academic Year</Label>

@@ -24,7 +24,7 @@ export function StudentForm({
   children: React.ReactNode,
   cancelHref: string
 }) {
-  const [state, formAction] = useActionState(action, null)
+  const [state, formAction] = useActionState<{ error?: string } | null, FormData>(action, null)
 
   return (
     <form action={formAction} className="space-y-6">

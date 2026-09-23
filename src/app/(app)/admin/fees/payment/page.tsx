@@ -32,14 +32,23 @@ export default async function AddPaymentPage({
   })
 
   // Build fee options
-  const fees = [
+  type FeeOption = {
+    id: string;
+    label: string;
+    totalAmount: number;
+    paidAmount: number;
+    balanceAmount: number;
+    type: "school" | "bus";
+  }
+
+  const fees: FeeOption[] = [
     {
       id: fee.id,
       label: "School Fee",
       totalAmount: fee.total_amount,
       paidAmount: fee.paid_amount,
       balanceAmount: fee.balance_amount,
-      type: "school" as const,
+      type: "school",
     },
   ]
 
