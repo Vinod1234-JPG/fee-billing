@@ -163,3 +163,15 @@ model BusPayment {
   student          Student  @relation(fields: [student_id], references: [id])
   bus_fee          BusFee   @relation(fields: [bus_fee_id], references: [id])
 }
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  user_id     String?
+  user_name   String
+  action      String   // e.g., 'CREATE', 'UPDATE', 'DELETE'
+  entity      String   // e.g., 'Student', 'FeePayment', 'Assistant'
+  entity_id   String?
+  details     String?  // JSON string or description
+  created_at  DateTime @default(now())
+}
+
